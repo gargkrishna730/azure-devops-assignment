@@ -15,7 +15,7 @@ provider "azurerm" {
 # Resource Group
 resource "azurerm_resource_group" "main" {
   name     = "rg-hello-world-app"
-  location = "East US"
+  location = "West US 2"
 }
 
 # Static Web App (using correct resource)
