@@ -1,57 +1,43 @@
-name: 'Deploy Azure Infrastructure'
+name: 'Provision Azure Infra with Terraform'
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
+    paths:
+      - 'infra/**'
   workflow_dispatch:
 
 jobs:
   terraform:
-    name: 'Terraform'
+    name: 'Terraform Apply'
     runs-on: ubuntu-latest
-    
     env:
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+    defaults:
+      run:
+        working-directory: infra
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: "1.6.0"
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-    - name: Terraform Format
-      run: terraform fmt -check
+      - name: Terraform Init
+        run: terraform init
 
-    - name: Terraform Init
-      run: terraform init
+      - name: Terraform Validate
+        run: terraform validate
 
-    - name: Terraform Validate
-      run: terraform validate
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
 
-    - name: Terraform Plan
-      run: terraform plan -out=tfplan
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
 
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve tfplan
-
-    - name: Display Outputs
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: |
-        echo "## Infrastructure Deployed Successfully! 🚀" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Resource Group:** $(terraform output -raw resource_group_name)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Static Web App:** $(terraform output -raw static_web_app_name)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**URL:** $(terraform output -raw static_web_app_url)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Ready for Azure DevOps deployment! 📦" >> $GITHUB_STEP_SUMMARY
+      - name: Show Outputs
+        run: terraform output
