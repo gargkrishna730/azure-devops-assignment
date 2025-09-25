@@ -1,4 +1,4 @@
-name: Simple CI/CD Pipeline
+name: NodeJS CI/CD Pipeline
 
 on:
   push:
@@ -57,6 +57,7 @@ jobs:
         action: "upload"
         app_location: "/"
         output_location: ""
+        skip_app_build: true
 
   close_pull_request:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
