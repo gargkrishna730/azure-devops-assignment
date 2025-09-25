@@ -26,45 +26,50 @@ resource "random_string" "suffix" {
 # Resource Group
 resource "azurerm_resource_group" "main" {
   name     = "rg-hello-world-app"
-  location = "East US"
-}
+  location = "East US 2"
 
-# App Service Plan (Free Tier)
-resource "azurerm_service_plan" "main" {
-  name                = "asp-hello-world-${random_string.suffix.result}"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  os_type             = "Linux"
-  sku_name            = "F1"  # Free tier
-}
-
-# Linux Web App
-resource "azurerm_linux_web_app" "main" {
-  name                = "app-hello-world-${random_string.suffix.result}"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  service_plan_id     = azurerm_service_plan.main.id
-
-  site_config {
-    application_stack {
-      node_version = "18-lts"
-    }
-    always_on = false  # Required for free tier
+  tags = {
+    Environment = "dev"
+    Project     = "hello-world"
+    ManagedBy   = "terraform"
   }
+}
 
-  app_settings = {
-    "WEBSITE_NODE_DEFAULT_VERSION" = "18.0.0"
-    "NODE_ENV"                     = "production"
+# Static Web App
+resource "azurerm_static_site" "main" {
+  name                = "swa-hello-world-${random_string.suffix.result}"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  
+  # Free tier
+  sku_tier = "Free"
+  sku_size = "Free"
+
+  tags = {
+    Environment = "dev"
+    Project     = "hello-world"
+    ManagedBy   = "terraform"
   }
 }
 
 # Outputs
-output "web_app_url" {
-  description = "URL of the web application"
-  value       = "https://${azurerm_linux_web_app.main.default_hostname}"
+output "resource_group_name" {
+  description = "Name of the resource group"
+  value       = azurerm_resource_group.main.name
 }
 
-output "web_app_name" {
-  description = "Name of the web application"
-  value       = azurerm_linux_web_app.main.name
+output "static_web_app_name" {
+  description = "Name of the Static Web App"
+  value       = azurerm_static_site.main.name
+}
+
+output "static_web_app_url" {
+  description = "Default URL of the Static Web App"
+  value       = "https://${azurerm_static_site.main.default_host_name}"
+}
+
+output "deployment_token" {
+  description = "Deployment token for the Static Web App"
+  value       = azurerm_static_site.main.api_key
+  sensitive   = true
 }
