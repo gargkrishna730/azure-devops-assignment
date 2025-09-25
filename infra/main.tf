@@ -6,16 +6,22 @@ terraform {
     }
   }
   required_version = ">= 1.3.0"
-
-  backend "azurerm" {
-    resource_group_name  = "rg-hello-world-app"
-    storage_account_name = "tfstatehelloworldapp"
-    container_name       = "tfstate"
-    key                  = "terraform.tfstate"
-  }
+  # Remove or comment out the backend block for now
+  # backend "azurerm" {
+  #   resource_group_name  = "rg-hello-world-app"
+  #   storage_account_name = "tfstatehelloworldapp"
+  #   container_name       = "tfstate"
+  #   key                  = "terraform.tfstate"
+  # }
 }
 
+provider "azurerm" {
   features {}
+}
+
+resource "azurerm_resource_group" "rg" {
+  name     = "rg-hello-world-app"
+  location = "East US"
 }
 
 resource "azurerm_storage_account" "tfstate" {
@@ -32,12 +38,6 @@ resource "azurerm_storage_container" "tfstate" {
   name                  = "tfstate"
   storage_account_name  = azurerm_storage_account.tfstate.name
   container_access_type = "private"
-}
-}
-
-resource "azurerm_resource_group" "rg" {
-  name     = "rg-hello-world-app"
-  location = "East US"
 }
 
 resource "azurerm_service_plan" "asp" {
