@@ -17,7 +17,7 @@ provider "azurerm" {
 }
 
 resource "random_string" "suffix" {
-  length  = 8
+  length  = 6
   special = false
   upper   = false
 }
@@ -25,27 +25,27 @@ resource "random_string" "suffix" {
 # Resource Group
 resource "azurerm_resource_group" "main" {
   name     = "rg-hello-world-app"
-  location = "East US"
+  location = "East US 2"  # Changed to East US 2 where it works
 }
 
-# Storage Account for Static Website
-resource "azurerm_storage_account" "main" {
-  name                     = "helloworldapp${random_string.suffix.result}"
-  resource_group_name      = azurerm_resource_group.main.name
-  location                 = azurerm_resource_group.main.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
+# Static Web App
+resource "azurerm_static_web_app" "main" {
+  name                = "hello-world-${random_string.suffix.result}"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  sku_tier            = "Free"
+  sku_size            = "Free"
 }
 
 # Outputs
-output "website_url" {
-  value = azurerm_storage_account.main.primary_web_endpoint
+output "static_web_app_url" {
+  value = "https://${azurerm_static_web_app.main.default_host_name}"
 }
 
-output "storage_account_name" {
-  value = azurerm_storage_account.main.name
+output "static_web_app_name" {
+  value = azurerm_static_web_app.main.name
 }
 
-output "resource_group" {
+output "resource_group_name" {
   value = azurerm_resource_group.main.name
 }
