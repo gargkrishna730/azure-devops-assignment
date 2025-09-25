@@ -6,139 +6,29 @@
     <title>Hello World - CI/CD Demo</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             color: white;
-        }
-        
-        .container {
             text-align: center;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            padding: 50px;
+            margin: 0;
         }
-        
-        h1 {
-            font-size: 3rem;
-            margin: 0 0 1rem 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 10px;
+            display: inline-block;
         }
-        
-        p {
-            font-size: 1.2rem;
-            margin: 1rem 0;
-        }
-        
-        .timestamp {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 2rem;
-        }
-        
-        button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
+        h1 { font-size: 3em; margin: 0; }
+        p { font-size: 1.2em; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🚀 Hello World!</h1>
-        <p>Welcome to our CI/CD Demo Application</p>
-        <p>Successfully deployed via GitHub Actions to Azure Static Web Apps</p>
-        
-        <button onclick="showMessage()">Click Me!</button>
-        <button onclick="showInfo()">App Info</button>
-        
-        <div id="message" style="margin-top: 1rem;"></div>
-        
-        <div class="timestamp">
-            Deployed at: <span id="deployTime"></span>
-        </div>
+        <p>CI/CD Pipeline Demo</p>
+        <p>Deployed with GitHub Actions to Azure Static Web Apps</p>
+        <p>✅ Build successful!</p>
     </div>
-
-    <script>
-        // Simple JavaScript functionality for testing
-        function showMessage() {
-            const messages = [
-                "🎉 Awesome! The app is working!",
-                "✨ CI/CD Pipeline Success!",
-                "🔥 Deployed with GitHub Actions!",
-                "💫 Azure Static Web Apps is cool!",
-                "🌟 Hello from the cloud!"
-            ];
-            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-            document.getElementById('message').innerHTML = `<p style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 10px; margin-top: 1rem;">${randomMessage}</p>`;
-        }
-        
-        function showInfo() {
-            const info = {
-                version: "1.0.0",
-                framework: "Vanilla HTML/CSS/JS",
-                deployment: "Azure Static Web Apps",
-                cicd: "GitHub Actions"
-            };
-            
-            let infoHtml = '<div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 10px; margin-top: 1rem; text-align: left;">';
-            infoHtml += '<h3>App Information:</h3>';
-            for (const [key, value] of Object.entries(info)) {
-                infoHtml += `<p><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</p>`;
-            }
-            infoHtml += '</div>';
-            
-            document.getElementById('message').innerHTML = infoHtml;
-        }
-        
-        // Set deployment timestamp
-        document.getElementById('deployTime').textContent = new Date().toLocaleString();
-        
-        // Simple test function that can be called by our test script
-        function runBasicTests() {
-            console.log("Running basic tests...");
-            
-            // Test 1: Check if DOM elements exist
-            const container = document.querySelector('.container');
-            const title = document.querySelector('h1');
-            const buttons = document.querySelectorAll('button');
-            
-            if (!container || !title || buttons.length !== 2) {
-                throw new Error("DOM structure test failed");
-            }
-            
-            // Test 2: Check if functions exist
-            if (typeof showMessage !== 'function' || typeof showInfo !== 'function') {
-                throw new Error("Function existence test failed");
-            }
-            
-            console.log("✅ All basic tests passed!");
-            return true;
-        }
-        
-        // Auto-run tests in development/test environment
-        if (window.location.hostname === 'localhost' || window.location.search.includes('test=true')) {
-            runBasicTests();
-        }
-    </script>
 </body>
 </html>
