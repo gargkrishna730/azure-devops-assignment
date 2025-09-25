@@ -16,7 +16,7 @@
     "html",
     "javascript"
   ],
-  "author": "Your Name",
+  "author": "Krishna Garg",
   "license": "MIT",
   "devDependencies": {
     "puppeteer": "^21.0.0",
