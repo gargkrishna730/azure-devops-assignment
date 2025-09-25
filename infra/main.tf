@@ -6,10 +6,33 @@ terraform {
     }
   }
   required_version = ">= 1.3.0"
+
+  backend "azurerm" {
+    resource_group_name  = "rg-hello-world-app"
+    storage_account_name = "tfstatehelloworldapp"
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
+  }
 }
 
-provider "azurerm" {
   features {}
+}
+
+resource "azurerm_storage_account" "tfstate" {
+  name                     = "tfstatehelloworldapp"
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  allow_blob_public_access = false
+  min_tls_version          = "TLS1_2"
+}
+
+resource "azurerm_storage_container" "tfstate" {
+  name                  = "tfstate"
+  storage_account_name  = azurerm_storage_account.tfstate.name
+  container_access_type = "private"
+}
 }
 
 resource "azurerm_resource_group" "rg" {
