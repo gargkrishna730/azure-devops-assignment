@@ -1,29 +1,28 @@
 {
-  "name": "hello-world-app",
+  "name": "hello-world-cicd-demo",
   "version": "1.0.0",
-  "description": "A simple Hello World Node.js web application for CI/CD demonstration",
-  "main": "app.js",
+  "description": "A simple Hello World application for demonstrating CI/CD pipeline with Azure Static Web Apps",
+  "main": "index.html",
   "scripts": {
-    "start": "node app.js",
-    "test": "jest",
-    "dev": "node app.js"
+    "start": "http-server . -p 8080",
+    "test": "node test.js",
+    "dev": "http-server . -p 8080 -o"
   },
-  "dependencies": {
-    "express": "^4.18.2"
-  },
+  "keywords": [
+    "ci-cd",
+    "azure",
+    "static-web-apps",
+    "github-actions",
+    "html",
+    "javascript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
   "devDependencies": {
-    "jest": "^30.1.3",
-    "supertest": "^6.3.3"
+    "puppeteer": "^21.0.0",
+    "http-server": "^14.1.1"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "keywords": [
-    "nodejs",
-    "express",
-    "azure",
-    "ci-cd"
-  ],
-  "author": "Azure DevOps Assignment",
-  "license": "MIT"
+  }
 }

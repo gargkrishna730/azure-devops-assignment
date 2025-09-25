@@ -1,0 +1,205 @@
+name: Azure Static Web Apps CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main"]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [ "main"]
+
+jobs:
+  # Build and Test Job
+  build_and_test:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Test
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🏗️ Setup Node.js (for testing tools)
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: 📦 Install testing dependencies
+      run: |
+        npm init -y
+        npm install --save-dev puppeteer http-server
+        
+    - name: 🧪 Run dummy tests
+      run: |
+        echo "🚀 Starting CI/CD Pipeline Tests..."
+        echo "=================================="
+        
+        # Test 1: Check if HTML file exists and is valid
+        echo "📄 Test 1: Checking HTML file..."
+        if [ -f "index.html" ]; then
+          echo "✅ index.html exists"
+        else
+          echo "❌ index.html not found"
+          exit 1
+        fi
+        
+        # Test 2: Basic HTML validation
+        echo "🔍 Test 2: Basic HTML structure validation..."
+        if grep -q "<title>" index.html && grep -q "<body>" index.html && grep -q "<script>" index.html; then
+          echo "✅ HTML structure is valid"
+        else
+          echo "❌ HTML structure validation failed"
+          exit 1
+        fi
+        
+        # Test 3: Check for required content
+        echo "📝 Test 3: Content validation..."
+        if grep -q "Hello World" index.html && grep -q "CI/CD" index.html; then
+          echo "✅ Required content found"
+        else
+          echo "❌ Required content missing"
+          exit 1
+        fi
+        
+        # Test 4: JavaScript syntax check (basic)
+        echo "🔧 Test 4: JavaScript validation..."
+        if grep -q "function showMessage" index.html && grep -q "function showInfo" index.html; then
+          echo "✅ JavaScript functions found"
+        else
+          echo "❌ JavaScript validation failed"
+          exit 1
+        fi
+        
+        # Test 5: Simulate browser test
+        echo "🌐 Test 5: Browser simulation test..."
+        # Start a simple HTTP server in background
+        npx http-server . -p 8080 &
+        SERVER_PID=$!
+        sleep 3
+        
+        # Create a simple test script
+        cat > test.js << 'EOF'
+        const puppeteer = require('puppeteer');
+        
+        (async () => {
+          const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+          });
+          
+          try {
+            const page = await browser.newPage();
+            await page.goto('http://localhost:8080');
+            
+            // Check if page loads
+            const title = await page.title();
+            console.log('📖 Page title:', title);
+            
+            // Check if main heading exists
+            const heading = await page.$eval('h1', el => el.textContent);
+            console.log('📌 Main heading:', heading);
+            
+            // Test button functionality
+            await page.click('button');
+            console.log('🖱️ Button click test passed');
+            
+            // Check if JavaScript is working
+            const result = await page.evaluate(() => {
+              return typeof showMessage === 'function' && typeof showInfo === 'function';
+            });
+            
+            if (result) {
+              console.log('✅ JavaScript functionality test passed');
+            } else {
+              throw new Error('JavaScript functionality test failed');
+            }
+            
+            console.log('🎉 All browser tests passed!');
+            
+          } catch (error) {
+            console.error('❌ Browser test failed:', error);
+            process.exit(1);
+          } finally {
+            await browser.close();
+          }
+        })();
+        EOF
+        
+        # Run the browser test
+        node test.js
+        
+        # Kill the HTTP server
+        kill $SERVER_PID
+        
+        echo "=================================="
+        echo "🎉 All tests passed successfully!"
+        echo "✨ Ready for deployment!"
+        
+    - name: 📊 Generate test report
+      run: |
+        echo "# Test Report 📋" > test-report.md
+        echo "" >> test-report.md
+        echo "**Date:** $(date)" >> test-report.md
+        echo "**Commit:** ${{ github.sha }}" >> test-report.md
+        echo "**Branch:** ${{ github.ref_name }}" >> test-report.md
+        echo "" >> test-report.md
+        echo "## Test Results ✅" >> test-report.md
+        echo "- HTML Structure Validation: ✅ Passed" >> test-report.md
+        echo "- Content Validation: ✅ Passed" >> test-report.md
+        echo "- JavaScript Validation: ✅ Passed" >> test-report.md
+        echo "- Browser Simulation: ✅ Passed" >> test-report.md
+        echo "- All Tests: ✅ **PASSED**" >> test-report.md
+        
+        echo "📋 Test report generated!"
+        cat test-report.md
+        
+    - name: 📤 Upload test artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-report
+        path: test-report.md
+
+  # Deploy to Azure Static Web Apps
+  build_and_deploy:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Deploy to Azure Static Web Apps
+    needs: build_and_test
+    
+    steps:
+    - name: 🔄 Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+        
+    - name: 🚀 Deploy to Azure Static Web Apps
+      id: builddeploy
+      uses: Azure/static-web-apps-deploy@v1
+      with:
+        azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        action: "upload"
+        app_location: "/" # Location of your app source code
+        api_location: "" # Location of your API source code (empty for static sites)
+        output_location: "" # Location of build output relative to app_location
+        
+    - name: 📝 Deployment summary
+      run: |
+        echo "🎉 Deployment completed successfully!"
+        echo "📍 App URL: "https://red-cliff-03ebb230f.1.azurestaticapps.net"
+        echo "🔗 You can find your actual URL in the Azure Portal"
+        echo "⏰ Deployment time: $(date)"
+
+  # Cleanup job for closed pull requests
+  close_pull_request:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request
+    
+    steps:
+    - name: 🧹 Close Pull Request
+      id: closepullrequest
+      uses: Azure/static-web-apps-deploy@v1
+      with:
+        azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+        action: "close"
+        app_location: "/" # Location of your app source code
