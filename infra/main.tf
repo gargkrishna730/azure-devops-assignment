@@ -25,7 +25,7 @@ resource "random_string" "suffix" {
 # Resource Group
 resource "azurerm_resource_group" "main" {
   name     = "rg-hello-world-app"
-  location = "East US 2"  # Changed to East US 2 where it works
+  location = "East US 2"
 }
 
 # Static Web App
