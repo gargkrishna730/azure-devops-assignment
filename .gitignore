@@ -1,0 +1,42 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Terraform
+infra/.terraform/
+infra/.terraform.lock.hcl
+infra/terraform.tfstate*
+
+# Build Artifacts
+/dist/
+/build/
+*.zip
+
+# Sensitive files
+secrets*
+*.pem
+*.key
+*.crt
+*.pfx
+
+# Azure DevOps
+*.coverage
+
+# Ignore test snapshots
+__snapshots__/
+
+# Ignore pipeline artifacts
+/drop/
